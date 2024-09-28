@@ -1,0 +1,38 @@
+
+1 - Definitions in the file "structure.sql"
+2 - Without defining the volume of data used, you must create keys, indices and tables for access control 
+    If the volume is very large, a global partition by store may be carried out due to the ease of data export, report generation and purging policy.
+    Global partition script example
+
+create table item_loc_soh(
+item varchar2(25) not null,
+loc number(10) not null,
+dept number(4) not null,
+unit_cost number(20,4) not null,
+stock_on_hand number(12,4) not null
+)
+PARTITION BY RANGE (loc)
+INTERVAL (1)  
+(
+    PARTITION p_initial VALUES LESS THAN (1)
+);
+alter table item_loc_soh add constraint pk_item_loc_soh primary key (item, loc);
+create index item_loc_soh_i_01 (item);
+create index item_loc_soh_i_02 (item, loc, dept)
+GLOBAL PARTITION BY RANGE (loc);
+alter table item_loc_soh add constraint fk_ils_item foreign key (item) references item(item);
+alter table item_loc_soh add constraint fk_ils_loc foreign key (loc) references loc(loc);
+alter table item_loc_soh add constraint fk_ils_deps foreign key (dept) references item(dept);
+
+
+3 - Using PK and FK and blocking scheduling
+4 - In the file "query_1.sql"
+5 - Tbles "user_priv", "user_loc_matrix" and "user_deps_matrix"
+6 - "PCK_TEST.MERG_ITEM_LOC_SOH_VALUE"
+7 - "PCK_TEST.GET_ITEM_LOC_USER"
+8 - File "object.sql" and function "PCK_TEST.tab_loc"
+9 - Create keys and indices
+10 - File "trigger.sql"
+11 - From the report it can be seen that CPU consumption is very high because some queries are performing "TABLE ACCESS - STORAGE FULL"
+     It is necessary to review the structure of this consultation
+11 - "PCK_TEST.CREATE_FILE"
